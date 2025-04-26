@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { countriesApi } from '../api/countriesApi';
 import countriesReducer from './countriesSlice';
 import { loadState, saveState } from './storePersist';
+import { rtkQueryErrorLogger } from './errorMiddleware';
 
 const persistedStateKey = 'favoriteCountries';
 
@@ -9,12 +10,12 @@ const persistedFavoriteCountries = loadState(persistedStateKey);
 
 export const store = configureStore({
   reducer: {
-    // @ts-ignore
     [countriesApi.reducerPath]: countriesApi.reducer,
     countries: countriesReducer,
   },
   // @ts-ignore
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(countriesApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(countriesApi.middleware).concat(rtkQueryErrorLogger),
   preloadedState: {
     countries: {
       favorites: persistedFavoriteCountries || {},
